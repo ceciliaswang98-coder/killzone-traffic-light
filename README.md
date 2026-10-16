@@ -1,126 +1,137 @@
-# Kill Zone 红绿灯
+# Kill Zone Traffic Light
 
-桌面右下角的三个小灯，用**北京时间**显示 ICT Kill Zone，**冬夏令时全自动**。
+**English** · [简体中文](README.zh-CN.md)
 
-![截图](screenshot.png)
+Three small lamps pinned to the corner of your desktop, showing **ICT Kill Zones in Beijing time
+(UTC+8)** — with **daylight saving handled automatically**.
 
-- `LDN` 伦敦KZ · `NY` 纽约AM · `PM` 纽约PM（不做亚洲盘）
-- 灯亮 = 在对应 Kill Zone 窗口内，方块自下而上按进度填充
-- **`NY` 灯满 = 纳指开盘**（灯只是亮着 ≠ 纳指开盘）
-- 周末不亮（按外汇交易周）
-- 拖到任意角落、可收进托盘、托盘图标同步变化
-- **零第三方依赖** —— 只用 Python 标准库（tkinter + zoneinfo + ctypes）
+![screenshot](screenshot.png)
 
----
-
-## 为什么不是随便写个表
-
-网上的 Kill Zone 时间表大多按 **UTC** 给，但 ICT 的定义基准是**纽约本地时间 (ET)**。
-那批「亚洲 KZ 01:00–05:00 UTC / 伦敦 KZ 07:00–10:00 UTC」其实是**冬令时 EST** 的换算值，
-到了夏令时整体偏 1 小时。
-
-更隐蔽的是**欧美错位周**：美国与欧盟切换夏令时的日期不同（2026 年是美国 3/8、11/1，
-欧盟 3/29、10/25），中间那两三周两边时差是 4 小时而不是 5 小时。
-按伦敦时间或固定 UTC 算，这几周窗口会整体错 1 小时。
-
-本项目**只认 ET 作基准**，其余全部交给 IANA tzdata 推导，因此永远对得上。
+- `LDN` London KZ · `NY` New York AM · `PM` New York PM (no Asia session)
+- A lit lamp means you are inside that Kill Zone; the square fills up from the bottom as the window progresses
+- **`NY` full = the Nasdaq is open** — a lit-but-not-full lamp does *not* mean the Nasdaq is open
+- Dark on weekends (forex trading week)
+- Drag to any corner, collapse to the system tray, tray icon mirrors the state
+- **Zero third-party dependencies** — standard library only (tkinter + zoneinfo + ctypes)
 
 ---
 
-## 安装与运行
+## Why not just hardcode the times
 
-**要求**：Windows + Python 3.9 以上（含 tkinter）。
-Windows 上 `zoneinfo` 需要 `tzdata` 包，如果缺就 `pip install tzdata`。
+Most Kill Zone tables published online are given in **UTC**, but ICT defines them in
+**New York local time (ET)**. The widely quoted "Asia 01:00–05:00 UTC / London 07:00–10:00 UTC"
+is the **winter (EST)** conversion — in summer everything shifts by one hour.
 
-不需要装任何其他东西。
+There is a subtler trap as well. **The US and the EU switch DST on different dates**
+(2026: US on Mar 8 and Nov 1; EU on Mar 29 and Oct 25). During those two or three
+"mismatch weeks" the London–New York gap is 4 hours instead of 5, so any table built on
+fixed UTC or on London time is off by an hour exactly when it matters.
+
+This project uses **ET as the single source of truth** and derives everything else from the
+IANA tzdata database, so it stays correct on every date.
+
+---
+
+## Requirements
+
+- Windows, Python 3.9+
+- `tkinter` (bundled with the python.org installer)
+- `tzdata` on Windows — `pip install tzdata` if `zoneinfo` cannot find a timezone
+
+Nothing else. No `pip install` of the project itself.
+
+## Running
 
 ```bat
-:: 直接跑
+:: run it
 python killzone_light.py
 
-:: 预览任意时刻（调试用）
+:: preview any moment (debugging)
 python killzone_light.py --at "2026-07-15 22:00"
 
-:: 启动后直接打开设置窗口
+:: start with the settings window already open
 python killzone_light.py --settings
 ```
 
-想放桌面随时点开，就建个快捷方式指向 `pythonw.exe`，参数写脚本绝对路径：
+To keep it on your desktop, create a shortcut pointing at `pythonw.exe`:
 
 ```
-目标: C:\...\pythonw.exe
-参数: -B "C:\...\killzone_light.py"
+Target : C:\...\pythonw.exe
+Args   : -B "C:\...\killzone_light.py"
 ```
 
-`-B` 是为了不生成 `__pycache__`。
+`-B` stops Python from writing a `__pycache__` directory next to the script.
 
 ---
 
-## 操作
+## Usage
 
-| 操作 | 效果 |
+| Action | Effect |
 |---|---|
-| 左键拖动 | 移动，松手自动吸附到最近的屏幕角 |
-| 双击 | 收进托盘 |
-| 滚轮 | 调整不透明度（立即存盘） |
-| 右键 | 打开设置窗口 |
-| 托盘左键 | 显示 / 隐藏挂件 |
-| 托盘右键 | 打开设置窗口（贴在鼠标位置） |
-| 托盘悬停 | 显示「NY 剩0:59」或「下一个 LDN 14:00（1:48 后）」 |
+| Left-drag | Move it; it snaps to the nearest screen corner on release |
+| Double-click | Collapse to the system tray |
+| Mouse wheel | Adjust opacity (saved immediately) |
+| Right-click | Open the settings window |
+| Tray icon, left-click | Show / hide the widget |
+| Tray icon, right-click | Open the settings window at the cursor |
+| Tray tooltip | e.g. `NY 0:59 left` or `next LDN 14:00 (in 1:48)` |
 
-设置窗口用标准控件，改任何一项立即生效并写入 `config.json`。
+The settings window uses plain Tk controls; every change applies and is persisted to
+`config.json` right away.
 
 ---
 
-## 核验过的时间表
+## Verified schedule
 
-下表由 `killzones.py` 用 IANA tzdata 实时计算得到，不是手抄。
+The table below is *computed* by `killzones.py` from the IANA tzdata database — it is not
+transcribed from a blog post.
 
-| 灯 | Kill Zone | 纽约时间 (ET) | 北京 · 夏令时 | 北京 · 冬令时 | 时长 |
+| Lamp | Kill Zone | New York (ET) | Beijing · DST | Beijing · standard | Length |
 |---|---|---|---|---|---|
-| **`LDN`** | 伦敦 KZ | 02:00 – 05:00 | **14:00 – 17:00** | **15:00 – 18:00** | 3h |
-| **`NY`** | 纽约 AM | 08:30 – 11:00 | **20:30 – 23:00** | **21:30 – 00:00⁺¹** | 2.5h |
-| **`PM`** | 纽约 PM | 13:30 – 16:00 | **01:30 – 04:00** | **02:30 – 05:00** | 2.5h |
+| **`LDN`** | London KZ | 02:00 – 05:00 | **14:00 – 17:00** | **15:00 – 18:00** | 3h |
+| **`NY`** | New York AM | 08:30 – 11:00 | **20:30 – 23:00** | **21:30 – 00:00⁺¹** | 2.5h |
+| **`PM`** | New York PM | 13:30 – 16:00 | **01:30 – 04:00** | **02:30 – 05:00** | 2.5h |
 
-Silver Bullet（各 1 小时，ET `03 / 10 / 14`）：
-夏令时 北京 `15–16 / 22–23 / 02–03`，冬令时 北京 `16–17 / 23–00 / 03–04`
+Silver Bullet windows (1 hour each, ET `03 / 10 / 14`):
+Beijing `15–16 / 22–23 / 02–03` under DST, `16–17 / 23–00 / 03–04` under standard time.
 
-### 灯的开关时段
+### Weekly on/off schedule
 
-![一周开关时段](schedule.png)
+![weekly schedule](schedule.png)
 
-`LDN` / `PM` 是**匀速填充**：窗口开始亮（0%），窗口结束涨满（100%）。
+`LDN` and `PM` fill **linearly** across their window: 0% when it opens, 100% when it closes.
 
-`NY` 是**两段式**，用来区分「预热」和「纳指开盘」：
+`NY` is a **two-stage** lamp, so you can tell "warm-up" from "Nasdaq open":
 
-| 阶段 | 夏令时（北京） | 冬令时（北京） |
+| Stage | Beijing · DST | Beijing · standard |
 |---|---|---|
-| 预热（灯亮但没满） | 20:30 – 21:30 | 21:30 – 22:30 |
-| **满灯 = 纳指开盘** | 21:30 – 04:00⁺¹ | 22:30 – 05:00⁺¹ |
+| Warm-up (lit, not full) | 20:30 – 21:30 | 21:30 – 22:30 |
+| **Full = Nasdaq open** | 21:30 – 04:00⁺¹ | 22:30 – 05:00⁺¹ |
 
-> 纳指现货 09:30–16:00 ET 是**连续交易、没有午休**的，所以满灯中间不该有洞。
+> The US cash session runs 09:30–16:00 ET **continuously with no lunch break**, so the full
+> lamp should have no gap in the middle.
 
-### 周末不亮
+### Dark on weekends
 
-按外汇交易周算：**周日 17:00 ET 开盘 → 周五 17:00 ET 收盘**
+The trading week follows forex: **Sunday 17:00 ET opens → Friday 17:00 ET closes**.
 
-| | 开盘 | 收盘 |
+| | Opens | Closes |
 |---|---|---|
-| 夏令时 | 周一 05:00（北京） | 周六 05:00（北京） |
-| 冬令时 | 周一 06:00（北京） | 周六 06:00（北京） |
+| DST | Monday 05:00 Beijing | Saturday 05:00 Beijing |
+| Standard | Monday 06:00 Beijing | Saturday 06:00 Beijing |
 
-注意容易看错的地方：**北京周六凌晨 00:00–04:00 是亮的**（那是纽约周五下午的盘中），
-周六 05:00 之后才全灭。
+One easy thing to misread: **early Saturday morning (Beijing 00:00–04:00) is lit** — that is
+Friday afternoon in New York. Everything goes dark after 05:00 Beijing on Saturday.
 
-重新生成周视图：`python schedule.py`
+Regenerate the weekly chart with `python schedule.py`.
 
 ---
 
-## 自定义
+## Customization
 
-### 改 Kill Zone 时间
+### Change the Kill Zone times
 
-编辑 `killzones.py` 里的 `KILLZONES`：
+Edit `KILLZONES` in `killzones.py`:
 
 ```python
 KILLZONES = (
@@ -131,80 +142,92 @@ KILLZONES = (
 )
 ```
 
-时间一律填**纽约本地时间**（别填 UTC 或北京时间），换算交给程序。
+All times are **New York local time** — never UTC, never Beijing. The conversion is done for you.
 
-`market_open` / `market_close` 是可选字段：给了就是**两段式**（从 `start` 开始填充 →
-到 `market_open` 涨满 → 满灯维持到 `market_close`）；不给就是纯窗口匀速填充。
+`market_open` / `market_close` are optional. Supply them and the lamp becomes **two-stage**
+(fill from `start` → reach full at `market_open` → stay full until `market_close`).
+Leave them out and the lamp simply fills linearly across the Kill Zone window.
 
-### 改简写 / 布局
+### Change the short labels / layout
 
-简写在 `killzones.py` 顶部的 `SHORT` 字典。布局（横排简写 / 竖排全称）在设置窗口里切。
+Short labels live in the `SHORT` dict at the top of `killzones.py`. Switch between the
+horizontal (abbreviated) and vertical (full-name) layout in the settings window.
 
-### 改图标
+### Change the icons
 
 ```bat
 python make_logo.py
 ```
 
-会生成 `logo.ico`（桌面快捷方式）+ `icon_idle.ico` / `icon_active.ico`（托盘两态）。
-改配色就改脚本里的 `LIGHTS`。
+Generates `logo.ico` (desktop shortcut) plus `icon_idle.ico` / `icon_active.ico`
+(the two tray states). Change the palette via `LIGHTS` in that script.
 
 ---
 
-## 文件
+## Files
 
-| 文件 | 作用 |
+| File | Purpose |
 |---|---|
-| `killzone_light.py` | 主程序（tkinter + 托盘，DPI 缩放、单实例保护） |
-| `killzones.py` | Kill Zone 时间引擎：ET → 北京时间，冬夏令时自动 |
-| `tray.py` | 纯 ctypes 实现的 Windows 托盘（自己的线程 + 队列） |
-| `logo.ico` / `icon_idle.ico` / `icon_active.ico` | 图标 |
-| `make_logo.py` | 生成上面三个图标 |
-| `schedule.py` | 生成一周开关时段周视图 |
-| `selftest.py` | 一键自检 |
-| `screenshot.png` / `schedule.png` | 文档图 |
+| `killzone_light.py` | Main widget (tkinter + tray, DPI scaling, single-instance guard) |
+| `killzones.py` | Kill Zone time engine: ET → Beijing, DST handled by tzdata |
+| `tray.py` | Windows tray icon in pure ctypes (own thread + queue) |
+| `logo.ico` / `icon_idle.ico` / `icon_active.ico` | Icons |
+| `make_logo.py` | Generates the three icons above |
+| `schedule.py` | Generates the weekly on/off chart |
+| `selftest.py` | One-shot self-test |
+| `screenshot.png` / `schedule.png` | Documentation images |
 
-运行后生成 `config.json`，保存位置 / 布局 / 不透明度 / 显示项。
+`config.json` is created at first run and stores position, layout, opacity and visible lamps.
 
 ---
 
-## 自检
+## Self-test
 
 ```bat
 python selftest.py
 ```
 
-三部分：
+Three parts:
 
-1. **时间引擎** —— 夏令时/冬令时的北京换算、欧美错位周、切换日前后、
-   亮灯边界（开始前 1 秒 / 开始瞬间 / 结束前 1 秒 / 结束瞬间）、进度、归属日、
-   两段式灯（预热 50% / 开盘满灯 / 收盘即灭）、周末规则。
-2. **托盘** —— 消息窗口、图标加载、`Shell_NotifyIconW(NIM_ADD)`、换色、气泡、`NIM_DELETE`。
-3. **挂件** —— 启动、尺寸、右下角边距、不透明度是否按配置生效、设置窗口能开且不改配置、优雅退出。
-
----
-
-## 实现上的几个坑（都踩过）
-
-- **不用原生弹出菜单**：`tk.Menu.tk_popup` 在「无边框 + 置顶 + 半透明」的窗口上不可靠，
-  出现过只剩一个空白灰框、菜单项完全不绘制。改用独立设置窗口 + 标准控件。
-- **`tk.Scale` 创建时就会触发一次 `command`**：会把配置里的值改掉。
-  必须「先建控件 → 设初值 → 最后才挂回调」。
-- **`config.json` 用 `utf-8-sig` 读**：别人（编辑器 / PowerShell）写进去的 BOM 会让
-  `json.loads` 抛异常，如果被 `except` 吞掉就会**静默退回默认值**，看起来像设置没保存。
-- **快捷方式图标要放在用户目录**：资源管理器提取 `.lnk` 图标是在受限的低完整性进程里做的，
-  读不到某些目录（例如带特殊 ACL 的工作目录），图标会退化成白纸。
-  `make_logo.py` 会同时写一份到 `%LOCALAPPDATA%\KillZoneLight\`。
-- **智能应用控制 (Smart App Control)**：开启时会拦掉 `.bat` / `.vbs` / `.ps1`
-  以及这类位置创建的 `.lnk`（报 `Dangerous file extension from the web`）。
-  所以启动方式直接指向签名的 `pythonw.exe`，不放任何脚本。
-- **DPI**：程序声明 DPI 感知并按系统缩放绘制，100% / 125% / 200% 下视觉大小一致。
-- **性能**：主循环每 400ms 跑一次，但只在状态真的变化时才重绘（比较渲染指纹）。
-- **横排上下留白刻意不等**：文字用 `anchor="n"` 绘制，字形下方有一段 descent 空白，
-  所以 `pad_bottom` 要比 `pad_top` 小一点，否则内容看着偏上。
+1. **Time engine** — Beijing conversions under DST and standard time, US/EU mismatch weeks,
+   around the DST switch dates, lamp boundaries (1s before / at the instant / 1s before end /
+   at close), fill progress, which trading day a window belongs to, the two-stage lamp,
+   and the weekend rule.
+2. **Tray** — message window, icon loading, `Shell_NotifyIconW(NIM_ADD)`, icon swap,
+   balloon notification, `NIM_DELETE`.
+3. **Widget** — launch, size, bottom-right margins, opacity actually applied from config,
+   settings window opens without corrupting config, clean exit.
 
 ---
 
-## 许可证
+## Implementation notes (things that bit me)
 
-MIT，见 [LICENSE](LICENSE)。
+- **No native popup menu.** `tk.Menu.tk_popup` is unreliable on a frameless, always-on-top,
+  translucent window — it once rendered as a blank grey box with no items drawn at all.
+  Replaced with a separate settings window using plain Tk widgets.
+- **`tk.Scale` fires its `command` once at creation**, which silently overwrote the stored
+  opacity. The fix is: create the widget → set the initial value → *then* attach the callback.
+- **Read `config.json` with `utf-8-sig`.** A BOM (written by an editor or PowerShell) makes
+  `json.loads` raise; if that is swallowed by a bare `except`, the app silently falls back to
+  defaults and it looks like your settings were never saved.
+- **Shortcut icons must live in the user profile.** Explorer extracts `.lnk` icons in a
+  restricted low-integrity process that cannot read some directories (e.g. a working folder
+  with unusual ACLs), and the icon degrades to a blank page.
+  `make_logo.py` writes a copy to `%LOCALAPPDATA%\KillZoneLight\`.
+- **Smart App Control.** When enabled it blocks `.bat` / `.vbs` / `.ps1` and `.lnk` files
+  created outside system-managed locations, with
+  `Dangerous file extension from the web`. So the launcher points straight at the signed
+  `pythonw.exe` and the project ships no scripts at all.
+- **DPI.** The app is DPI-aware and scales every dimension, so it looks the same and stays
+  sharp at 100% / 125% / 200%.
+- **Performance.** The main loop ticks every 400 ms but only redraws when the render
+  fingerprint actually changes.
+- **The horizontal padding is deliberately asymmetric.** The labels are drawn with
+  `anchor="n"`, leaving a descent gap under the glyphs, so `pad_bottom` has to be smaller
+  than `pad_top` or the content looks like it sits too high.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
