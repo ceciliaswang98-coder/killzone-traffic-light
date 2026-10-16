@@ -1,0 +1,19 @@
+# 运行时生成的个人配置（位置 / 布局 / 不透明度等）
+config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 日志与临时文件
+*.log
+*.tmp
+*.bak
+
+# 由 make_logo.py 生成的预览图
+logo.png
+
+# 开发调试用的临时脚本
+_*.py
+_*.png

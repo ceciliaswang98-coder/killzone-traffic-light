@@ -1,0 +1,11 @@
+# 统一换行符，避免 Windows 上 CRLF/LF 来回改
+* text=auto
+
+*.py   text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+
+# 二进制文件不要做换行转换
+*.ico binary
+*.png binary
+*.exe binary
