@@ -1,0 +1,37 @@
+name: selftest
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  engine:
+    name: time engine · ${{ matrix.os }} · py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.9", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Windows 上没有系统 tzdata，zoneinfo 需要这个包
+      - name: Install tzdata (Windows only)
+        if: runner.os == 'Windows'
+        run: python -m pip install --upgrade tzdata
+
+      - name: Show timezone database version
+        run: python -c "import zoneinfo, datetime; print('UTC ->', datetime.datetime.now(datetime.timezone.utc)); print(len(zoneinfo.available_timezones()), 'zones')"
+
+      # 只跑时间引擎：DST 换算、欧美错位周、灯的状态机、周末规则。
+      # 托盘和窗口需要桌面会话，在 CI 上跑不了。
+      - name: Run time-engine tests
+        run: python selftest.py --engine-only

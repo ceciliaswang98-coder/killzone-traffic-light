@@ -2,6 +2,12 @@
 
 [English](README.md) · **简体中文**
 
+[![selftest](https://github.com/ceciliaswang98-coder/killzone-traffic-light/actions/workflows/selftest.yml/badge.svg)](https://github.com/ceciliaswang98-coder/killzone-traffic-light/actions/workflows/selftest.yml)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#安装与运行)
+[![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#安装与运行)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 桌面右下角的三个小灯，用**北京时间**显示 ICT Kill Zone，**冬夏令时全自动**。
 
 ![截图](screenshot.png)
@@ -175,6 +181,10 @@ python make_logo.py
 ```bat
 python selftest.py
 ```
+
+> CI 上只跑时间引擎那一半（`python selftest.py --engine-only`），
+> 因为托盘和窗口测试需要真实桌面会话，GitHub 的 runner 没有。
+> 见 [`.github/workflows/selftest.yml`](.github/workflows/selftest.yml)。
 
 三部分：
 

@@ -286,12 +286,25 @@ def test_app() -> None:
 
 
 def main() -> None:
+    # 控制台编码：Windows 默认可能是 GBK，直接 print ✅ 会炸；CI 上也需要 UTF-8
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+    # --engine-only：只跑时间引擎。CI 的 runner 没有桌面会话，
+    # 托盘（要 explorer.exe）和窗口测不了，所以分开。
+    engine_only = "--engine-only" in sys.argv
+
     print("=" * 70)
-    print("Kill Zone 红绿灯 · 一键自检")
+    print("Kill Zone 红绿灯 · 一键自检" + ("（仅时间引擎）" if engine_only else ""))
     print("=" * 70)
+
     test_engine()
-    test_tray()
-    test_app()
+    if not engine_only:
+        test_tray()
+        test_app()
 
     print("\n" + "=" * 70)
     if FAIL:

@@ -2,6 +2,12 @@
 
 **English** · [简体中文](README.zh-CN.md)
 
+[![selftest](https://github.com/ceciliaswang98-coder/killzone-traffic-light/actions/workflows/selftest.yml/badge.svg)](https://github.com/ceciliaswang98-coder/killzone-traffic-light/actions/workflows/selftest.yml)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#requirements)
+[![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#requirements)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 Three small lamps pinned to the corner of your desktop, showing **ICT Kill Zones in Beijing time
 (UTC+8)** — with **daylight saving handled automatically**.
 
@@ -186,6 +192,10 @@ Generates `logo.ico` (desktop shortcut) plus `icon_idle.ico` / `icon_active.ico`
 ```bat
 python selftest.py
 ```
+
+> CI runs the time-engine half only (`python selftest.py --engine-only`), because the tray and
+> window tests need a real desktop session that GitHub runners do not have.
+> See [`.github/workflows/selftest.yml`](.github/workflows/selftest.yml).
 
 Three parts:
 
